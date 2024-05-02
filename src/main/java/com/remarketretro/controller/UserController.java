@@ -3,6 +3,7 @@ package com.remarketretro.controller;
 import com.remarketretro.entity.User;
 import com.remarketretro.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +18,8 @@ public class UserController {
     private UserService userService;
 
     @PostConstruct
-    public void initRolesAndUsers() {
-        userService.initRolesAndUser();
+    public void initRoleAndUser() {
+        userService.initRoleAndUser();
     }
 
     @PostMapping({"/registerNewUser"})
@@ -27,12 +28,14 @@ public class UserController {
     }
 
     @GetMapping({"/forAdmin"})
-    public String forAdmin() {
-        return "This URL is only accessibly to admin";
+    @PreAuthorize("hasRole('Admin')")
+    public String forAdmin(){
+        return "This URL is only accessible to the admin";
     }
 
     @GetMapping({"/forUser"})
-    public String forUser() {
-        return "This URL is only accessibly to the user";
+    @PreAuthorize("hasRole('User')")
+    public String forUser(){
+        return "This URL is only accessible to the user";
     }
 }

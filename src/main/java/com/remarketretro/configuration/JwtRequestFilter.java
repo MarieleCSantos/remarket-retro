@@ -17,9 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
@@ -28,43 +25,41 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtService jwtService;
-    private static final int NUMBER_TO_CUT_STRING = 7;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        final String header = httpServletRequest.getHeader("Authorization");
+        final String requestTokenHeader = request.getHeader("Authorization");
 
+        String username = null;
         String jwtToken = null;
-        String userName = null;
-        if (nonNull(header) && header.startsWith("Bearer ")) {
-            jwtToken = header.substring(NUMBER_TO_CUT_STRING);
 
+        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+            jwtToken = requestTokenHeader.substring(7);
             try {
-                userName = jwtUtil.getUserNameFromToken(jwtToken);
+                username = jwtUtil.getUsernameFromToken(jwtToken);
             } catch (IllegalArgumentException e) {
-                System.out.println("Unable to get JWT token");
+                System.out.println("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {
-                System.out.println("Jwt token is expired");
+                System.out.println("JWT Token has expired");
             }
         } else {
-            System.out.println("Jwt token does not start with Bearer");
+            System.out.println("JWT token does not start with Bearer");
         }
 
-        if (nonNull(userName) && isNull(SecurityContextHolder.getContext().getAuthentication())) {
-            UserDetails userDetails = jwtService.loadUserByUsername(userName);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            UserDetails userDetails = jwtService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwtToken, userDetails)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails,
-                                null,
-                                userDetails.getAuthorities());
 
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
+        filterChain.doFilter(request, response);
 
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
+
 }
