@@ -44,7 +44,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/authenticate",
                         "/registerNewUser",
                         "/getAllProducts",
-                        "/deleteProductDetails/{productId}").permitAll()
+                        "/deleteProductDetails/{productId}",
+                        "/getProductDetailsById/{productId}").permitAll()
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()
                 .and()
