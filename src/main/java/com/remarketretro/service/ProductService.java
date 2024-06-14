@@ -28,4 +28,6 @@ public class ProductService {
     public Product getProductDetailsById(Integer productId) {
         return productDao.findById(productId).get();
     }
+
+
 }
