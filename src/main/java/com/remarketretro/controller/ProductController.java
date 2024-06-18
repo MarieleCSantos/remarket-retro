@@ -69,4 +69,10 @@ public class ProductController {
         productService.deleteProductDetails(productId);
     }
 
+    @PreAuthorize("hasRole('User')")
+    @GetMapping({"/getProductDetails/{isSingleProductCheckout}/{productId}"})
+    public List<Product> getProductDetails(@PathVariable(name = "isSingleProductCheckout") boolean isSingleProductCheckout,
+                                           @PathVariable(name = "productId") Integer productId) {
+        return productService.getProductDetails(isSingleProductCheckout, productId);
+    }
 }
