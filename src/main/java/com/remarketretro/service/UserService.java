@@ -58,10 +58,12 @@ public class UserService {
 
     public User registerNewUser(User user) {
         Role role = roleDao.findById("User").get();
-        Set<Role> userRoles = new HashSet<>();
-        userRoles.add(role);
-        user.setRole(userRoles);
-        user.setUserPassword(getEncodedPassword(user.getUserPassword()));
+        Set<Role> roleSet = new HashSet<>();
+        roleSet.add(role);
+        user.setRole(roleSet);
+
+        String password = getEncodedPassword(user.getUserPassword());
+        user.setUserPassword(password);
 
         return userDao.save(user);
     }
