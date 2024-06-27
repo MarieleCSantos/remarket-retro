@@ -40,13 +40,10 @@ public class ProductService {
 
     public List<Product> getProductDetails(boolean isSingleProductCheckout, Integer productId) {
         if (isSingleProductCheckout) {
-            // we are going to buy a single product
             List<Product> list = new ArrayList<>();
             Product product = productDao.findById(productId).get();
             list.add(product);
             return list;
-        } else {
-            // we are going to checkout entire cart
         }
         return new ArrayList<>();
     }
