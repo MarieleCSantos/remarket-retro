@@ -48,7 +48,11 @@ public class UserService {
     }
 
     public User registerNewUser(User user) {
-        Role role = roleDao.findById("User").get();
+        Role role = null;
+
+        if (roleDao.findById("User").isPresent()) {
+            role = roleDao.findById("User").get();
+        }
         Set<Role> roleSet = new HashSet<>();
         roleSet.add(role);
         user.setRole(roleSet);

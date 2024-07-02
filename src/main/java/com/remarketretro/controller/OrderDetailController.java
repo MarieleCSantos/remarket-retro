@@ -14,6 +14,10 @@ public class OrderDetailController {
     @Autowired
     private OrderDetailService orderDetailService;
 
+    /**
+     * Cria um novo pedido para o usuário atual
+     * @param orderInput = contem informações de entrega e dos itens comprados
+     */
     @PreAuthorize("hasRole('User')")
     @PostMapping({"/placeOrder"})
     public void placeOrder(@RequestBody OrderInput orderInput) {

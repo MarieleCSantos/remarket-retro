@@ -39,13 +39,19 @@ public class JwtService implements UserDetailsService {
         UserDetails userDetails = loadUserByUsername(userName);
         String newGeneratedToken = jwtUtil.generateToken(userDetails);
 
-        User user = userDao.findById(userName).get();
+        User user = null;
+        if (userDao.findById(userName).isPresent()) {
+            user = userDao.findById(userName).get();
+        }
         return new JwtResponse(user, newGeneratedToken);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDao.findById(username).get();
+        User user = null;
+        if (userDao.findById(username).isPresent()) {
+            user = userDao.findById(username).get();
+        }
 
         if (user != null) {
             return new org.springframework.security.core.userdetails.User(
@@ -70,9 +76,9 @@ public class JwtService implements UserDetailsService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, userPassword));
         } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            throw new Exception("Usuário desabilitado", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new Exception("Credenciais inválidas", e);
         }
     }
 }

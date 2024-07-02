@@ -26,6 +26,12 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    /**
+     * Cria um novo produto associação ao usuário vendedor logado
+     * @param product = contém as informações sobre o produto
+     * @param file = imagens do produto a serem cadastradas
+     * @return retorna o objeto Produto com seu identificador único criado
+     */
     @PreAuthorize("hasRole('Admin')")
     @PostMapping(value = {"/addNewProduct"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Product addNewProduct(@RequestPart("product") Product product,
@@ -40,6 +46,51 @@ public class ProductController {
         }
     }
 
+    /**
+     * Busca todos os produtos disponíveis com base em filtros ou não
+     * @param pageNumber = paginação da busca
+     * @param searchKey = caso sejam adicionados filtros eles estarão neste parâmetro
+     * @return retorna uma lista com os produtos correspondentes
+     */
+    @GetMapping({"/getAllProducts"})
+    public List<Product> getAllProducts(@RequestParam(defaultValue = "0") int pageNumber,
+                                        @RequestParam(defaultValue = "") String searchKey) {
+        return productService.getAllProducts(pageNumber, searchKey);
+    }
+
+    /**
+     * Traz os detalhes de um produto específico
+     * @param productId = identificador único de um produto
+     * @return retorna o produto correspondente ao identificador informado
+     */
+    @GetMapping({"/getProductDetailsById/{productId}"})
+    public Product getProductDetailsById(@PathVariable("productId") Integer productId) {
+        return productService.getProductDetailsById(productId);
+    }
+
+    /**
+     * Deleta um produto
+     * @param productId = identificador único de um produto
+     */
+    @PreAuthorize("hasRole('Admin')")
+    @DeleteMapping({"/deleteProductDetails/{productId}"})
+    public void deleteProductDetails(@PathVariable("productId") Integer productId) {
+        productService.deleteProductDetails(productId);
+    }
+
+    /**
+     * Traz os dados de produtos
+     * @param isSingleProductCheckout = indica se será um pedido com apenas um item ou não
+     * @param productId = identificador único de um produto
+     * @return retorna uma lista com os produtos correspondentes
+     */
+    @PreAuthorize("hasRole('User')")
+    @GetMapping({"/getProductDetails/{isSingleProductCheckout}/{productId}"})
+    public List<Product> getProductDetails(@PathVariable(name = "isSingleProductCheckout") boolean isSingleProductCheckout,
+                                           @PathVariable(name = "productId") Integer productId) {
+        return productService.getProductDetails(isSingleProductCheckout, productId);
+    }
+
     public Set<ImageModel> uploadImage(MultipartFile[] multipartFiles) throws IOException {
         Set<ImageModel> imageModels = new HashSet<>();
 
@@ -52,31 +103,5 @@ public class ProductController {
             imageModels.add(imageModel);
         }
         return imageModels;
-    }
-
-    @GetMapping({"/getAllProducts"})
-    public List<Product> getAllProducts(@RequestParam(defaultValue = "0") int pageNumber,
-                                        @RequestParam(defaultValue = "") String searchKey) {
-        List<Product> result = productService.getAllProducts(pageNumber, searchKey);
-        System.out.println("Result size is:" + result.size());
-        return result;
-    }
-
-    @GetMapping({"/getProductDetailsById/{productId}"})
-    public Product getProductDetailsById(@PathVariable("productId") Integer productId) {
-        return productService.getProductDetailsById(productId);
-    }
-
-    @PreAuthorize("hasRole('Admin')")
-    @DeleteMapping({"/deleteProductDetails/{productId}"})
-    public void deleteProductDetails(@PathVariable("productId") Integer productId) {
-        productService.deleteProductDetails(productId);
-    }
-
-    @PreAuthorize("hasRole('User')")
-    @GetMapping({"/getProductDetails/{isSingleProductCheckout}/{productId}"})
-    public List<Product> getProductDetails(@PathVariable(name = "isSingleProductCheckout") boolean isSingleProductCheckout,
-                                           @PathVariable(name = "productId") Integer productId) {
-        return productService.getProductDetails(isSingleProductCheckout, productId);
     }
 }

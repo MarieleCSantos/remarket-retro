@@ -35,13 +35,20 @@ public class ProductService {
     }
 
     public Product getProductDetailsById(Integer productId) {
-        return productDao.findById(productId).get();
+        if (productDao.findById(productId).isPresent()) {
+            return productDao.findById(productId).get();
+        }
+        return null;
     }
 
     public List<Product> getProductDetails(boolean isSingleProductCheckout, Integer productId) {
         if (isSingleProductCheckout) {
             List<Product> list = new ArrayList<>();
-            Product product = productDao.findById(productId).get();
+            Product product = null;
+            if (productDao.findById(productId).isPresent()) {
+                product = productDao.findById(productId).get();
+            }
+
             list.add(product);
             return list;
         }

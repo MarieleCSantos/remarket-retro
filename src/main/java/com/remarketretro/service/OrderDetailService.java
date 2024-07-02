@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderDetailService {
@@ -30,11 +31,18 @@ public class OrderDetailService {
     public void placeOrder(OrderInput orderInput) {
         List<OrderProductQuantity> productQuantityList = orderInput.getOrderProductQuantityList();
 
-        for (OrderProductQuantity o : productQuantityList) {
-            Product product = productDao.findById(o.getProductId()).get();
+        for (OrderProductQuantity orderProductQuantity : productQuantityList) {
+            Product product = null;
+            if (productDao.findById(orderProductQuantity.getProductId()).isPresent()) {
+                product = productDao.findById(orderProductQuantity.getProductId()).get();
+            }
 
             String currentUser = JwtRequestFilter.CURRENT_USER;
-            User user = userDao.findById(currentUser).get();
+            User user = null;
+            if (userDao.findById(currentUser).isPresent()) {
+                user = userDao.findById(currentUser).get();
+
+            }
 
             OrderDetail orderDetail = new OrderDetail(
                     orderInput.getFullName(),
@@ -42,7 +50,7 @@ public class OrderDetailService {
                     orderInput.getContactNumber(),
                     orderInput.getAlternateContactNumber(),
                     ORDER_PLACED,
-                    product.getProductDiscountedPrice() * o.getQuantity(),
+                    Objects.requireNonNull(product).getProductDiscountedPrice() * orderProductQuantity.getQuantity(),
                     product,
                     user
             );

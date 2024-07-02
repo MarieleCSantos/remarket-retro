@@ -25,15 +25,19 @@ public class CartService {
     private UserDao userDao;
 
     public Cart addToCart(Integer productId) {
-        Product product = productDao.findById(productId).get();
+        Product product = null;
+        if (productDao.findById(productId).isPresent()) {
+             product = productDao.findById(productId).get();
+        }
+
         String username = JwtRequestFilter.CURRENT_USER;
 
         User user = null;
-        if (!username.equals(null)) {
+        if (username != null && userDao.findById(username).isPresent()) {
             user = userDao.findById(username).get();
         }
 
-        if (!product.equals(null) && !user.equals(null)) {
+        if (product != null && user != null) {
             Cart cart = new Cart(product, user);
             return cartDao.save(cart);
         }
@@ -42,7 +46,10 @@ public class CartService {
 
     public List<Cart> getCartDetails() {
         String username = JwtRequestFilter.CURRENT_USER;
-        User user = userDao.findById(username).get();
+        User user = null;
+        if (userDao.findById(username).isPresent()) {
+            user = userDao.findById(username).get();
+        }
         return cartDao.findByUser(user);
     }
 }

@@ -22,17 +22,30 @@ public class UserController {
         userService.initRoleAndUser();
     }
 
+    /**
+     * Cadastra novo usuário
+     * @param user = informações do usuário
+     * @return retorna as informações cadastradas
+     */
     @PostMapping({"/registerNewUser"})
     public User registerNewUser(@RequestBody User user) {
         return userService.registerNewUser(user);
     }
 
+    /**
+     * Indica que uma página específica só é acessível aos administradores
+     * @return retorna uma mensagem de erro
+     */
     @GetMapping({"/forAdmin"})
     @PreAuthorize("hasRole('Admin')")
     public String forAdmin(){
         return "Essa página só é acessível ao usuário administrador";
     }
 
+    /**
+     * Indica que uma página específica só é acessível aos usuários compradores
+     * @return retorna uma mensagem de erro
+     */
     @GetMapping({"/forUser"})
     @PreAuthorize("hasRole('User')")
     public String forUser(){

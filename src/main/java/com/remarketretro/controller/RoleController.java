@@ -13,6 +13,11 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
+    /**
+     * Endpoint usado para criar novas permissões na base
+     * @param role = objeto que contém o nome da permissão e sua descrição
+     * @return retorna as informações inseridas na base
+     */
     @PostMapping({"/createNewRole"})
     public Role createNewRole(@RequestBody Role role) {
         return roleService.createNewRole(role);
